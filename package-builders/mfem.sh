@@ -110,6 +110,14 @@ function mfem_build()
    else
       echo "${magenta}INFO: Building $pkg without RAJA ...${none}"
    fi
+   local AMGX_MAKE_OPTS=()
+   if [[ -n "$AMGX_DIR" ]]; then
+      RAJA_MAKE_OPTS=(
+         "MFEM_USE_AMGX=YES"
+         "AMGX_DIR=$AMGX_DIR")
+   else
+      echo "${magenta}INFO: Building $pkg without AMGX ...${none}"
+   fi
    local OMP_MAKE_OPTS=()
    if [[ -n "$OMP_ENABLED" ]]; then
       OMP_MAKE_OPTS=(
@@ -148,10 +156,12 @@ function mfem_build()
          HYPRE_DIR="$HYPRE_DIR/src/hypre" \
          METIS_DIR="$METIS_DIR" \
          MFEM_USE_METIS_5="$METIS_5" \
+         MFEM_USE_SIMD=NO \
          "${CUDA_MAKE_OPTS[@]}" \
          "${HIP_MAKE_OPTS[@]}" \
          "${OCCA_MAKE_OPTS[@]}" \
          "${RAJA_MAKE_OPTS[@]}" \
+         "${AMGX_MAKE_OPTS[@]}" \
          "${OMP_MAKE_OPTS[@]}" \
          "${LIBCEED_MAKE_OPTS[@]}" \
          "${SUNDIALS_MAKE_OPTS[@]}" \

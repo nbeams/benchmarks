@@ -57,16 +57,15 @@ function amgx_build()
    if package_build_is_good; then
       echo "Using successfully built $pkg from OUT_DIR."
       return 0
-   fi
-   # Start the build process from scratch.
-   rm -rf "$pkg_bld_dir"
-   mkdir -p "$pkg_bld_dir" || {
+   elif [[ ! -d "$pkg_bld_dir" ]]; then
+     # Start the build process from scratch.
+     echo "Starting $pkg_src_dir build process from scratch" &&
+     rm -rf "$pkg_bld_dir"
+     mkdir -p "$pkg_bld_dir" || {
       echo "Error creating directory $pkg_bld_dir. Stop."
       return 1
-   }
-   # Note: AMGX does not seem to use the values of variables like
-   #       CMAKE_CXX_FLAGS, CMAKE_CXX_FLAGS_RELEASE, etc, at least when CUDA
-   #       support is enabled.
+     }
+   fi
    echo "Building $pkg, sending output to ${pkg_bld_dir}_build.log ..." && {
       cd "$AMGX_SOURCE_DIR" && \
       cd "$pkg_bld_dir" && \
@@ -85,6 +84,7 @@ function amgx_build()
       return 1
    }
    echo "Build successful."
+   : > "${pkg_bld_dir}_build_successful"
 }
 
 
