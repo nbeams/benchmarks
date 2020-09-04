@@ -40,7 +40,7 @@ function run_tests()
    # 'mfem_devs' can be set on the command line
    local l_mfem_devs=(${mfem_devs:-cpu})
    # 'el_type' can be set on the command line
-   local el_type=${el_type:-1}
+   local el_type=${el_type:-0}
    local dim=3
    local args=
    for dev in ${l_mfem_devs[@]}; do
