@@ -40,12 +40,14 @@ function run_tests()
    local l_max_dofs_proc=${max_dofs_proc:-4200000}
    # 'mfem_devs' can be set on the command line
    local l_mfem_devs=(${mfem_devs:-cpu})
+   # 'el_type' can be set on the command line
+   local el_type=${el_type:-0}
    local dim=3
    local args=
    for dev in ${l_mfem_devs[@]}; do
       for ((p = l_min_p; p <= l_max_p; p++)) do
          for ((l = 0; (p**dim)*(2**l) <= l_max_dofs_proc; l++)) do
-            args=(-p $problem -o $p -l $l -d $dev)
+            args=(-p $problem -o $p -l $l -d $dev -e $el_type)
             if [ -z "$dry_run" ]; then
                echo "Running test:"
                quoted_echo $mpi_run ./$test_name "${args[@]}"

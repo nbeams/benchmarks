@@ -27,7 +27,7 @@ using namespace std;
 using namespace mfem;
 
 Mesh *make_mesh(int myid, int num_procs, int dim, int level,
-                int &par_ref_levels, Array<int> &nxyz);
+                int &par_ref_levels, Array<int> &nxyz, int el_type);
 
 int main(int argc, char *argv[])
 {
@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
    int level = 0;
    int order = 1;
    int problem = 0;
+   int el_type = 0;
    const char *device_config = "cpu";
 
    OptionsParser args(argc, argv);
@@ -52,6 +53,8 @@ int main(int argc, char *argv[])
    args.AddOption(&order, "-o", "--order",
                   "Finite element order (polynomial degree).");
    args.AddOption(&problem, "-p", "--problem", "Problem 0:Mass, 1:Diffusion.");
+   args.AddOption(&el_type, "-e", "--element-type",
+                  "Element type 0:Hexahedron, 1:Tetrahedron.");
    args.AddOption(&device_config, "-d", "--device",
                   "Device configuration string, see Device::Configure().");
    args.Parse();
@@ -79,7 +82,7 @@ int main(int argc, char *argv[])
    //    and volume meshes with the same code.
    int par_ref_levels;
    Array<int> nxyz;
-   Mesh *mesh = make_mesh(myid, num_procs, dim, level, par_ref_levels, nxyz);
+   Mesh *mesh = make_mesh(myid, num_procs, dim, level, par_ref_levels, nxyz, el_type);
 
    // 5. Refine the serial mesh on all processors to increase the resolution. In
    //    this example we do 'ref_levels' of uniform refinement. We choose
@@ -253,7 +256,7 @@ int main(int argc, char *argv[])
 }
 
 Mesh *make_mesh(int myid, int num_procs, int dim, int level,
-                int &par_ref_levels, Array<int> &nxyz)
+                int &par_ref_levels, Array<int> &nxyz, int el_type)
 {
    int log_p = (int)floor(log((double)num_procs)/log(2.0) + 0.5);
    MFEM_VERIFY((1 << log_p) == num_procs,
@@ -282,9 +285,19 @@ Mesh *make_mesh(int myid, int num_procs, int dim, int level,
    // Create the Mesh.
    const bool gen_edges = true;
    const bool sfc_ordering = true;
-   Mesh *mesh = new Mesh(1 << t[0], 1 << t[1], 1 << t[2],
-                         Element::HEXAHEDRON, gen_edges,
-                         1.0, 1.0, 1.0, sfc_ordering);
+   Mesh *mesh = NULL;
+   if (el_type == 0)
+   {  // Hex elements
+     mesh = new Mesh(1 << t[0], 1 << t[1], 1 << t[2],
+                       Element::HEXAHEDRON, gen_edges,
+                       1.0, 1.0, 1.0, sfc_ordering);
+   }
+   else
+   { // Tets
+     mesh = new Mesh(1 << t[0], 1 << t[1], 1 << t[2],
+                       Element::TETRAHEDRON, gen_edges,
+                       1.0, 1.0, 1.0, sfc_ordering);
+   }
    if (myid == 0)
    {
       cout << "Processor partitioning: ";
