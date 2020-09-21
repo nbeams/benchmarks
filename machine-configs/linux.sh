@@ -167,8 +167,7 @@ function setup_hip()
 search_file_list LAPACK_LIB \
    "/usr/lib64/atlas/libsatlas.so" "/usr/lib64/libopenblas.so"
 
-#valid_compilers="gcc"
-valid_compilers="hip"
+valid_compilers="gcc hip"
 
 # Number of processors to use for building packages and tests:
 num_proc_build=${num_proc_build:-8}
