@@ -142,11 +142,34 @@ function set_mpi_options()
    compose_mpi_run_command
 }
 
+hip_arch=${hip_arch:-gfx906}
+
+function setup_hip()
+{
+    echo "${cyan}HIP setup${none}"
+
+    CC=/opt/rocm/llvm/bin/clang
+    CXX=/opt/rocm/llvm/bin/clang++
+    FC=/opt/rocm/aomp/bin/flang
+    setup_mpi
+
+    export MFEM_CPPFLAGS="-I${MPI_HOME}/include"
+    export LDFLAGS="-L${MPI_HOME}/lib -lmpi"
+    CFLAGS="-O3"
+    NATIVE_CFLAG="-march=native"
+    CXX11FLAG="--std=c++11 -fno-gpu-rdc"
+    hip_home=${HIP_HOME:-/opt/rocm}
+    hip_path=${hip_home}/bin
+    hip_lib=${hip_home}/lib64
+}
+
 
 search_file_list LAPACK_LIB \
    "/usr/lib64/atlas/libsatlas.so" "/usr/lib64/libopenblas.so"
 
-valid_compilers="gcc clang intel"
+#valid_compilers="gcc"
+valid_compilers="hip"
+
 # Number of processors to use for building packages and tests:
 num_proc_build=${num_proc_build:-8}
 # Default number of processors and processors per node for running tests:
