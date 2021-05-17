@@ -49,7 +49,7 @@ function mfem_clone()
    for pkg_repo in "${pkg_repo_list[@]}"; do
       echo "Cloning $pkg from $pkg_repo ..."
       git clone "$pkg_repo" "$pkg_src_dir" && \
-      cd "$pkg_src_dir" && \ 
+      cd "$pkg_src_dir" && \
       git checkout "$pkg_git_branch" && \
       return 0
    done
@@ -66,15 +66,25 @@ function mfem_build()
    elif [[ ! -d "$pkg_bld_dir" ]]; then
       mkdir -p "$pkg_bld_dir"
    fi
+   if [[ -z "$HYPRE_DIR" ]]; then
+      echo "The required variable 'HYPRE_DIR' is not set. Stop."
+      return 1
+   fi
+   if [[ -z "$METIS_DIR" ]]; then
+      echo "The required variable 'METIS_DIR' is not set. Stop."
+      return 1
+   fi
    local cxx11_flag="${CXX11FLAG:--std=c++11}"
    local optim_flags="$cxx11_flag $CFLAGS"
    local xcompiler=""
+   local METIS_5="NO"
+   [[ "$METIS_VERSION" = "5" ]] && METIS_5="YES"
    local CUDA_MAKE_OPTS=()
    if [[ -n "$CUDA_ENABLED" ]]; then
       CUDA_MAKE_OPTS=(
          "MFEM_USE_CUDA=YES"
          "CUDA_CXX=$cuda_home/bin/nvcc"
-         "CUDA_ARCH=${cuda_arch:-sm_60}")
+         "CUDA_ARCH=${cuda_arch:-sm_70}")
       xcompiler="-Xcompiler="
       optim_flags="$cxx11_flag $xcompiler\"$CFLAGS\""
    else
@@ -104,6 +114,14 @@ function mfem_build()
    else
       echo "${magenta}INFO: Building $pkg without RAJA ...${none}"
    fi
+   local AMGX_MAKE_OPTS=()
+   if [[ -n "$AMGX_DIR" ]]; then
+      AMGX_MAKE_OPTS=(
+         "MFEM_USE_AMGX=YES"
+         "AMGX_DIR=$AMGX_DIR")
+   else
+      echo "${magenta}INFO: Building $pkg without AMGX ...${none}"
+   fi
    local OMP_MAKE_OPTS=()
    if [[ -n "$OMP_ENABLED" ]]; then
       OMP_MAKE_OPTS=(
@@ -130,6 +148,7 @@ function mfem_build()
    fi
    echo "Building $pkg, sending output to ${pkg_bld_dir}_build.log ..." && {
       local num_nodes=1  # for 'make check' or 'make test'
+      set_mpi_options    # for 'make check' or 'make test'
       cd "$pkg_bld_dir" && \
       make config \
          -f "$MFEM_SOURCE_DIR/makefile" \
@@ -143,6 +162,7 @@ function mfem_build()
          "${HIP_MAKE_OPTS[@]}" \
          "${OCCA_MAKE_OPTS[@]}" \
          "${RAJA_MAKE_OPTS[@]}" \
+         "${AMGX_MAKE_OPTS[@]}" \
          "${OMP_MAKE_OPTS[@]}" \
          "${LIBCEED_MAKE_OPTS[@]}" \
          "${SUNDIALS_MAKE_OPTS[@]}" \
@@ -157,8 +177,9 @@ function mfem_build()
    echo "Build successful."
    print_variables "$pkg_var_prefix" \
       MFEM_BRANCH MFEM_DEBUG \
-      CUDA_ENABLED cuda_home OCCA_DIR \
-      RAJA_DIR OMP_ENABLED omp_flag LIBCEED_DIR SUNDIALS_DIR \
+      CUDA_ENABLED cuda_home \
+      HIP_ENABLED hip_home OCCA_DIR RAJA_DIR OMP_ENABLED omp_flag \
+      LIBCEED_DIR SUNDIALS_DIR \
       > "${pkg_bld_dir}_build_successful"
 }
 

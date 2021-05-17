@@ -86,13 +86,19 @@ function libceed_build()
    # Check for optional packages used by backends
    local CUDA_MAKE_OPTS=("CUDA_DIR=/disable-cuda")
    if [[ -n "$CUDA_ENABLED" ]]; then
-      CUDA_MAKE_OPTS=("CUDA_DIR=${cuda_home}")
+      CUDA_MAKE_OPTS=("CUDA_DIR=${cuda_home}"
+                      "CC=${MPICC}"
+                      "CXX=${MPICXX}"
+                      "FC=${MPIF77}")
    else
       echo "${magenta}INFO: Building $pkg without CUDA ...${none}"
    fi
    local HIP_MAKE_OPTS=("HIP_DIR=/disable-hip")
    if [[ -n "$HIP_ENABLED" ]]; then
-      HIP_MAKE_OPTS=("HIP_DIR=${hip_home}")
+      HIP_MAKE_OPTS=("HIP_DIR=${hip_home}"
+                     "CC=${hip_home}/llvm/bin/clang"
+                     "CXX=${hip_home}/llvm/bin/clang++"
+                     "FC=${hip_home}/llvm/bin/flang")
    else
       echo "${magenta}INFO: Building $pkg without HIP ...${none}"
    fi
@@ -108,10 +114,6 @@ function libceed_build()
       cd "$pkg_bld_dir" && \
       make -j $num_proc_build \
          V="$libceed_verbose" \
-         CC="$MPICC" \
-         CXX="$MPICXX" \
-         FC="$MPIF77" \
-         CUDA_DIR="${CUDA_HOME}" \
          OPT="$OPT_FLAGS" \
          "${CUDA_MAKE_OPTS[@]}" \
          "${HIP_MAKE_OPTS[@]}" \
