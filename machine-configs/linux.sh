@@ -148,9 +148,10 @@ function setup_hip()
 {
     echo "${cyan}HIP setup${none}"
 
-    CC=/opt/rocm/llvm/bin/clang
-    CXX=/opt/rocm/llvm/bin/clang++
-    FC=/opt/rocm/aomp/bin/flang
+    hip_home=${HIP_HOME:-/opt/rocm}
+    CC=${hip_home}/llvm/bin/clang
+    CXX=${hip_home}/llvm/bin/clang++
+    FC=${hip_home}/llvm/bin/flang
     setup_mpi
 
     export MFEM_CPPFLAGS="-I${MPI_HOME}/include"
@@ -158,7 +159,6 @@ function setup_hip()
     CFLAGS="-O3"
     NATIVE_CFLAG="-march=native"
     CXX11FLAG="--std=c++11 -fno-gpu-rdc"
-    hip_home=${HIP_HOME:-/opt/rocm}
     hip_path=${hip_home}/bin
     hip_lib=${hip_home}/lib64
 }
@@ -181,4 +181,4 @@ memory_per_node=8
 
 cuda_home=${CUDA_HOME:-/usr/local/cuda}
 cuda_path=${cuda_home}/bin
-cuda_arch=${cuda_arch:-sm_60}
+cuda_arch=${cuda_arch:-sm_70}
