@@ -102,7 +102,7 @@ function libceed_build()
          CC="$MPICC" \
          CXX="$MPICXX" \
          FC="$MPIF77" \
-         HIP_DIR="." \
+         CUDA_DIR="${CUDA_HOME}" \
          OPT="$OPT_FLAGS" \
          "${OCCA_MAKE_OPTS[@]}"
    } &> "${pkg_bld_dir}_build.log" || {
