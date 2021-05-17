@@ -48,7 +48,10 @@ function mfem_clone()
    fi
    for pkg_repo in "${pkg_repo_list[@]}"; do
       echo "Cloning $pkg from $pkg_repo ..."
-      git clone "$pkg_repo" "$pkg_src_dir" && return 0
+      git clone "$pkg_repo" "$pkg_src_dir" && \
+      cd "$pkg_src_dir" && \
+      git checkout "$pkg_git_branch" && \
+      return 0
    done
    echo "Could not successfully clone $pkg. Stop."
    return 1
@@ -81,7 +84,7 @@ function mfem_build()
       CUDA_MAKE_OPTS=(
          "MFEM_USE_CUDA=YES"
          "CUDA_CXX=$cuda_home/bin/nvcc"
-         "CUDA_ARCH=${cuda_arch:-sm_60}")
+         "CUDA_ARCH=${cuda_arch:-sm_70}")
       xcompiler="-Xcompiler="
       optim_flags="$cxx11_flag $xcompiler\"$CFLAGS\""
    else
@@ -110,6 +113,14 @@ function mfem_build()
          "RAJA_DIR=$RAJA_DIR")
    else
       echo "${magenta}INFO: Building $pkg without RAJA ...${none}"
+   fi
+   local AMGX_MAKE_OPTS=()
+   if [[ -n "$AMGX_DIR" ]]; then
+      AMGX_MAKE_OPTS=(
+         "MFEM_USE_AMGX=YES"
+         "AMGX_DIR=$AMGX_DIR")
+   else
+      echo "${magenta}INFO: Building $pkg without AMGX ...${none}"
    fi
    local OMP_MAKE_OPTS=()
    if [[ -n "$OMP_ENABLED" ]]; then
@@ -155,6 +166,7 @@ function mfem_build()
          "${HIP_MAKE_OPTS[@]}" \
          "${OCCA_MAKE_OPTS[@]}" \
          "${RAJA_MAKE_OPTS[@]}" \
+         "${AMGX_MAKE_OPTS[@]}" \
          "${OMP_MAKE_OPTS[@]}" \
          "${LIBCEED_MAKE_OPTS[@]}" \
          "${SUNDIALS_MAKE_OPTS[@]}" \
@@ -171,8 +183,9 @@ function mfem_build()
    echo "Build successful."
    print_variables "$pkg_var_prefix" \
       MFEM_BRANCH MFEM_DEBUG \
-      HYPRE_DIR METIS_DIR METIS_VERSION CUDA_ENABLED cuda_home OCCA_DIR \
-      RAJA_DIR OMP_ENABLED omp_flag LIBCEED_DIR SUNDIALS_DIR \
+      HYPRE_DIR METIS_DIR METIS_VERSION CUDA_ENABLED cuda_home \
+      HIP_ENABLED hip_home OCCA_DIR RAJA_DIR OMP_ENABLED omp_flag \
+      LIBCEED_DIR SUNDIALS_DIR \
       > "${pkg_bld_dir}_build_successful"
 }
 

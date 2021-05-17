@@ -29,7 +29,7 @@ OCCA_SOURCE_DIR="$pkg_sources_dir/$pkg_src_dir"
 pkg_bld_dir="$OUT_DIR/occa"
 OCCA_DIR="$pkg_bld_dir"
 # The OCCA branch can be set on the command line of go.sh too.
-occa_branch="${occa_branch:-master}"
+occa_branch="${occa_branch:-main}"
 OCCA_BRANCH="${occa_branch}"
 pkg="OCCA (branch ${occa_branch})"
 pkg_var_prefix="occa_"
@@ -80,6 +80,14 @@ function occa_build()
       export OCCA_CUDA_ENABLED=0
       echo "${magenta}INFO: Building $pkg without CUDA ...${none}"
    fi
+   if [[ -n "$HIP_ENABLED" ]]; then
+      add_to_path after OCCA_INCLUDE_PATH "${hip_home}/hip/include"
+      add_to_path after OCCA_INCLUDE_PATH "${hip_home}/opencl/include"
+      export OCCA_INCLUDE_PATH
+   else
+      export OCCA_HIP_ENABLED=0
+      echo "${magenta}INFO: Building $pkg without HIP ...${none}"
+   fi
    echo "Building $pkg, sending output to ${pkg_bld_dir}_build.log ..." && {
       cd "$pkg_bld_dir" && \
       make \
@@ -93,7 +101,7 @@ function occa_build()
    }
    echo "Build successful."
    print_variables "$pkg_var_prefix" \
-      OCCA_BRANCH CUDA_ENABLED cuda_home \
+      OCCA_BRANCH CUDA_ENABLED cuda_home HIP_ENABLED hip_home \
       > "${pkg_bld_dir}_build_successful"
 }
 
