@@ -267,20 +267,19 @@ Mesh *make_mesh(int myid, int num_procs, int dim, int level,
    t[2] = log_n/3;
 
    // Create the Mesh.
-   const bool gen_edges = true;
    const bool sfc_ordering = true;
    Mesh *mesh = NULL;
   if (el_type == 0)
   {  // Hex elements
-    mesh = new Mesh(1 << t[0], 1 << t[1], 1 << t[2],
-                       Element::HEXAHEDRON, gen_edges,
-                       1.0, 1.0, 1.0, sfc_ordering);
+    mesh = new Mesh(Mesh::MakeCartesian3D(1 << t[0], 1 << t[1], 1 << t[2],
+                                          Element::HEXAHEDRON,
+                                          1.0, 1.0, 1.0, sfc_ordering));
    }
    else
    { // Tets
-    mesh = new Mesh(1 << t[0], 1 << t[1], 1 << t[2],
-                       Element::TETRAHEDRON, gen_edges,
-                       1.0, 1.0, 1.0, sfc_ordering);
+    mesh = new Mesh(Mesh::MakeCartesian3D(1 << t[0], 1 << t[1], 1 << t[2],
+                                          Element::TETRAHEDRON,
+                                          1.0, 1.0, 1.0, sfc_ordering));
    }
    if (myid == 0)
    {
