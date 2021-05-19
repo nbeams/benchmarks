@@ -30,6 +30,11 @@ ifeq ($(MFEM_USE_MPI),NO)
    $(error A parallel MFEM build is required.)
 endif
 
+EX1MULT = $(BLD)ex1_mult
+ifeq ($(MFEM_USE_MPI),NO)
+   $(error A parallel MFEM build is required.)
+endif
+
 .SUFFIXES:
 .SUFFIXES: .o .cpp .mk
 .PHONY: all clean clean-build clean-exec
@@ -41,7 +46,7 @@ endif
 $(BLD)%: $(SRC)%.cpp $(MFEM_LIB_FILE) $(CONFIG_MK)
 	$(MFEM_CXX) $(MFEM_FLAGS) $< -o $@ $(MFEM_LIBS)
 
-all: $(EX1)
+all: $(EX1) $(EX1MULT)
 
 # Generate an error message if the MFEM library is not built and exit
 $(MFEM_LIB_FILE):
