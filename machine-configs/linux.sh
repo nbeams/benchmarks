@@ -81,7 +81,9 @@ function setup_gcc()
    CXX=g++
    FC=gfortran
 
-   setup_mpi
+   if [[ ${serial} -lt 1 ]]; then 
+       setup_mpi
+   fi
 
    CFLAGS="-O3"
    setup_bigmem
@@ -152,17 +154,16 @@ function setup_hip()
     CC=${hip_home}/llvm/bin/clang
     CXX=${hip_home}/llvm/bin/clang++
     FC=${hip_home}/llvm/bin/flang
-    setup_mpi
-
-    export MFEM_CPPFLAGS="-I${MPI_HOME}/include"
-    export LDFLAGS="-L${MPI_HOME}/lib -lmpi"
+    if [[ ${serial} -lt 1 ]]; then 
+        setup_mpi
+        export MFEM_CPPFLAGS="-I${MPI_HOME}/include"
+    fi
     CFLAGS="-O3"
     NATIVE_CFLAG="-march=native"
     CXX11FLAG="--std=c++11 -fno-gpu-rdc"
     hip_path=${hip_home}/bin
     hip_lib=${hip_home}/lib64
 }
-
 
 search_file_list LAPACK_LIB \
    "/usr/lib64/atlas/libsatlas.so" "/usr/lib64/libopenblas.so"

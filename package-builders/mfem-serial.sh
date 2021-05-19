@@ -66,19 +66,9 @@ function mfem_build()
    elif [[ ! -d "$pkg_bld_dir" ]]; then
       mkdir -p "$pkg_bld_dir"
    fi
-   if [[ -z "$HYPRE_DIR" ]]; then
-      echo "The required variable 'HYPRE_DIR' is not set. Stop."
-      return 1
-   fi
-   if [[ -z "$METIS_DIR" ]]; then
-      echo "The required variable 'METIS_DIR' is not set. Stop."
-      return 1
-   fi
    local cxx11_flag="${CXX11FLAG:--std=c++11}"
    local optim_flags="$cxx11_flag $CFLAGS"
    local xcompiler=""
-   local METIS_5="NO"
-   [[ "$METIS_VERSION" = "5" ]] && METIS_5="YES"
    local CUDA_MAKE_OPTS=()
    if [[ -n "$CUDA_ENABLED" ]]; then
       CUDA_MAKE_OPTS=(
@@ -148,7 +138,6 @@ function mfem_build()
    fi
    echo "Building $pkg, sending output to ${pkg_bld_dir}_build.log ..." && {
       local num_nodes=1  # for 'make check' or 'make test'
-      set_mpi_options    # for 'make check' or 'make test'
       cd "$pkg_bld_dir" && \
       make config \
          -f "$MFEM_SOURCE_DIR/makefile" \

@@ -760,7 +760,9 @@ do
 num_proc_run="${num_proc_list[$num_proc_idx]}"
 num_proc_node="${num_proc_node_list[$num_proc_idx]}"
 
-set_num_nodes || $exit_cmd 1
+if [[ ${serial} -lt 1 ]]; then
+    set_num_nodes || $exit_cmd 1
+fi
 
 if [[ "$start_shell" = "yes" ]]; then
    if [[ ! -t 1 ]]; then

@@ -94,6 +94,7 @@ function mfem_build()
    if [[ -n "$HIP_ENABLED" ]]; then
       HIP_MAKE_OPTS=("MFEM_USE_HIP=YES"
                      "HIP_ARCH=${hip_arch}")
+      #LDFLAGS="${LDFLAGS} -L${MPI_HOME}/lib -lmpi"
       echo "${cyan}INFO: Building $pkg with HIP ...${none}"
    else
       echo "${magenta}INFO: Building $pkg without HIP ...${none}"
