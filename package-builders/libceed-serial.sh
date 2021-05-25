@@ -87,6 +87,7 @@ function libceed_build()
    local CUDA_MAKE_OPTS=("CUDA_DIR=/disable-cuda")
    if [[ -n "$CUDA_ENABLED" ]]; then
       CUDA_MAKE_OPTS=("CUDA_DIR=${cuda_home}"
+                      "CUDA_ARCH=${cuda_arch}"
                       "CC=${CC}"
                       "CXX=$CXX}"
                       "FC=${FC}")
@@ -96,6 +97,7 @@ function libceed_build()
    local HIP_MAKE_OPTS=("HIP_DIR=/disable-hip")
    if [[ -n "$HIP_ENABLED" ]]; then
       HIP_MAKE_OPTS=("HIP_DIR=${hip_home}"
+                     "HIP_ARCH=${hip_arch}"
                      "CC=${hip_home}/llvm/bin/clang"
                      "CXX=${hip_home}/llvm/bin/clang++"
                      "FC=${hip_home}/llvm/bin/flang")
