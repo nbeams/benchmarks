@@ -89,7 +89,7 @@ function libceed_build()
       CUDA_MAKE_OPTS=("CUDA_DIR=${cuda_home}"
                       "CUDA_ARCH=${cuda_arch}"
                       "CC=${CC}"
-                      "CXX=$CXX}"
+                      "CXX=${CXX}"
                       "FC=${FC}")
    else
       echo "${magenta}INFO: Building $pkg without CUDA ...${none}"

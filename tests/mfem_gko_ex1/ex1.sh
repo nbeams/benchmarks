@@ -24,14 +24,13 @@ function build_tests()
       "MFEM_DIR=$MFEM_DIR"
       "BLD=$test_exe_dir/")
    quoted_echo make "${make_opts[@]}"
-   [[ -n "$dry_run" ]] || make "${make_opts[@]}"
+   [[ -n "$dry_run" ]] || make "${make_opts[@]}" all
 }
 
 
 function run_tests()
 {
-   local test_name="ex1_mult"
-   set_mpi_options
+   local test_name="ex1"
    # 'min_p' can be set on the command line
    local l_min_p=${min_p:-1}
    # 'max_p' can be set on the command line
@@ -94,7 +93,6 @@ libceed_branch=${libceed_branch:-main}
 # Only with HIP
 #packages="hip metis hypre mfem-hip"
 
-#packages=${packages:-hip metis hypre libceed mfem-hip}
-packages=${packages:-hip metis hypre libceed mfem}
+packages="cuda mfem-serial-no-ceed"
 
 test_required_packages=${packages}

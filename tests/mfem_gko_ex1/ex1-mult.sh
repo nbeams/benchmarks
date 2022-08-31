@@ -22,16 +22,17 @@ function build_tests()
    local make_opts=(
       "-j" "$num_proc_build"
       "MFEM_DIR=$MFEM_DIR"
-      "BLD=$test_exe_dir/")
+      "BLD=$test_exe_dir/"
+      "GINKGO_LIBS= "
+      "GINKGO_FLAGS= ")
    quoted_echo make "${make_opts[@]}"
-   [[ -n "$dry_run" ]] || make "${make_opts[@]}"
+   [[ -n "$dry_run" ]] || make "${make_opts[@]}" mult
 }
 
 
 function run_tests()
 {
-   local test_name="ex1_mult"
-   set_mpi_options
+   local test_name="ex1-mult"
    # 'min_p' can be set on the command line
    local l_min_p=${min_p:-1}
    # 'max_p' can be set on the command line
@@ -77,7 +78,7 @@ function build_and_run_tests()
 
 
 mfem_branch=${mfem_branch:-master}
-libceed_branch=${libceed_branch:-magma-launch-bounds}
+libceed_branch=${libceed_branch:-main}
 
 # Uncomment the next line to enable 64-bit HYPRE_Int:
 # hypre_big_int=1
@@ -94,7 +95,6 @@ libceed_branch=${libceed_branch:-magma-launch-bounds}
 # Only with HIP
 #packages="hip metis hypre mfem-hip"
 
-#packages=${packages:-hip metis hypre libceed mfem-hip}
-packages=${packages:-hip metis hypre libceed-hip mfem-hip}
+packages="cuda mfem-serial-no-ceed"
 
 test_required_packages=${packages}
