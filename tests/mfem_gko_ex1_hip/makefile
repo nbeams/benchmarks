@@ -26,7 +26,7 @@ MFEM_LIB_FILE = mfem_is_not_built
 -include $(CONFIG_MK)
 
 LIBCEED_DIR = 
-LIBCEED_LIB = -Xlinker=-rpath,$(LIBCEED_DIR)/lib -L$(LIBCEED_DIR)/lib -lceed 
+LIBCEED_LIB = -Wl,-rpath,$(LIBCEED_DIR)/lib -L$(LIBCEED_DIR)/lib -lceed 
 LIBCEED_FLAGS = -I$(LIBCEED_DIR)/include
  
 GINKGO_DIR ?=
@@ -43,7 +43,7 @@ ifeq ($(GINKGO_BUILD_TYPE),Debug)
   endif
 else
 endif
-GINKGO_LIBS ?= -Xlinker=-rpath,$(GINKGO_LIB_DIR) -L$(GINKGO_LIB_DIR) $(GINKGO_LINK)
+GINKGO_LIBS ?= -Wl,-rpath,$(GINKGO_LIB_DIR) -L$(GINKGO_LIB_DIR) $(GINKGO_LINK)
 
 EX1 = $(BLD)ex1
 
@@ -56,12 +56,13 @@ EX1MULT  = $(BLD)ex1-mult
 # Remove built-in rule
 %: %.cpp
 
-filter=-std=c++11
+filter=--std=c++11
 SHORT_MFEM_FLAGS := $(filter-out $(filter), $(MFEM_FLAGS))
 
+SRC.hip = $(SRC)$(wildcard *.hip.cpp)
 # Replace the default implicit rule for *.cpp files
-$(BLD)%: $(SRC)%.cpp $(SRC)$(wildcard *.cu) $(MFEM_LIB_FILE) $(CONFIG_MK)
-	$(MFEM_CXX) $(LIBCEED_FLAGS) $(GINKGO_FLAGS) $(SHORT_MFEM_FLAGS) $(SRC)$(wildcard *.cu) $< -o $@ $(MFEM_LIBS) $(GINKGO_LIBS) $(LIBCEED_LIB)
+$(BLD)%: $(SRC)%.cpp $(MFEM_LIB_FILE) $(CONFIG_MK)
+	$(MFEM_CXX) $(LIBCEED_FLAGS) $(GINKGO_FLAGS) $(SHORT_MFEM_FLAGS) $(SRC.hip) $< -o $@ $(MFEM_LIBS) $(GINKGO_LIBS) $(LIBCEED_LIB)
 
 mult: $(EX1MULT)
 
