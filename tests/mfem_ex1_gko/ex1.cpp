@@ -227,8 +227,24 @@ int main(int argc, char *argv[])
        cg.SetRelTol(1e-12);
        cg.SetMaxIter(max_cg_iter);
        cg.SetPrintLevel(cg_print_level);
+
+       // For Ginkgo, check the time to set the operator (relevant for fully-assembled matrices)
+       MPI_Barrier(pmesh->GetComm());
+       tic_toc.Clear();
+       tic_toc.Start();
        cg.SetOperator(*A);
-    
+       tic_toc.Stop();
+       double my_set_op_time = tic_toc.RealTime();
+       double set_op_min, set_op_max;
+       MPI_Reduce(&my_set_op_time, &set_op_min, 1, MPI_DOUBLE, MPI_MIN, 0, pmesh->GetComm());
+       MPI_Reduce(&my_set_op_time, &set_op_max, 1, MPI_DOUBLE, MPI_MAX, 0, pmesh->GetComm());
+       if (myid == 0)
+       {
+          cout << '\n'
+               << "Total time to set operator:    " << set_op_max << " (" << set_op_min << ") sec."
+               << endl;
+       }
+
        // Warm-up CG solve (in case of JIT to avoid timing it)
        {
           Vector Xtmp(X);
