@@ -74,8 +74,8 @@ function mfem_build()
       echo "The required variable 'METIS_DIR' is not set. Stop."
       return 1
    fi
-   local cxx11_flag="${CXX11FLAG:--std=c++11}"
-   local optim_flags="$cxx11_flag $CFLAGS"
+   local cxx17_flag="${CXX17FLAG:--std=c++17}"
+   local optim_flags="$cxx17_flag $CFLAGS"
    local xcompiler=""
    local METIS_5="NO"
    [[ "$METIS_VERSION" = "5" ]] && METIS_5="YES"
@@ -86,7 +86,7 @@ function mfem_build()
          "CUDA_CXX=$cuda_home/bin/nvcc"
          "CUDA_ARCH=${cuda_arch:-sm_70}")
       xcompiler="-Xcompiler="
-      optim_flags="$cxx11_flag $xcompiler\"$CFLAGS\""
+      optim_flags="$cxx17_flag $xcompiler\"$CFLAGS\""
    else
       echo "${magenta}INFO: Building $pkg without CUDA ...${none}"
    fi
@@ -138,6 +138,14 @@ function mfem_build()
    else
       echo "${magenta}INFO: Building $pkg without libCEED ...${none}"
    fi
+   local GINKGO_MAKE_OPTS=()
+   if [[ -n "$GINKGO_DIR" ]]; then
+      GINKGO_MAKE_OPTS=(
+         "MFEM_USE_GINKGO=YES"
+         "GINKGO_DIR=$GINKGO_DIR")
+   else
+      echo "${magenta}INFO: Building $pkg without Ginkgo ...${none}"
+   fi
    local SUNDIALS_MAKE_OPTS=()
    if [[ -n "$SUNDIALS_DIR" ]]; then
       SUNDIALS_MAKE_OPTS=(
@@ -169,6 +177,7 @@ function mfem_build()
          "${AMGX_MAKE_OPTS[@]}" \
          "${OMP_MAKE_OPTS[@]}" \
          "${LIBCEED_MAKE_OPTS[@]}" \
+         "${GINKGO_MAKE_OPTS[@]}" \
          "${SUNDIALS_MAKE_OPTS[@]}" \
          LDFLAGS="${LDFLAGS[*]}" \
          MFEM_MPIEXEC="${MPIEXEC:-mpirun}" \

@@ -25,7 +25,7 @@ if [[ -z "$OUT_DIR" ]]; then
    return 1
 fi
 METIS_VERSION="${METIS_VERSION:-4}"
-pkg_src_url_base="http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis"
+pkg_src_url_base="http://papers.karypis.org/glaros/files/sw/metis"
 if [[ "$METIS_VERSION" = "4" ]]; then
    METIS_FULL_VERSION="4.0.3"
 else
