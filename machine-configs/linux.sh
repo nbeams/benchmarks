@@ -137,8 +137,13 @@ function setup_clang()
 
 function set_mpi_options()
 {
-   # Run all tasks on the same node.
-   num_proc_node=${num_proc_run}
+   # Final command will be: $MPIEXEC $MPIEXEC_OPTS $MPIEXEC_NP $num_proc_run $MPIEXEC_POST_OPTS $bind_sh
+   # Note that the benchmark will not distribute GPUs to ranks; the MPI command needs to do it (benchmark
+   # assumes every GPU is device 0 on its rank)
+   MPIEXEC="mpirun"
+   MPIEXEC_NP="-n"
+   MPIEXEC_OPTS="-N $num_nodes"
+   bind_sh=""
    compose_mpi_run_command
 }
 
@@ -146,17 +151,21 @@ function set_mpi_options()
 search_file_list LAPACK_LIB \
    "/usr/lib64/atlas/libsatlas.so" "/usr/lib64/libopenblas.so"
 
-valid_compilers="gcc clang intel"
+valid_compilers="gcc hip"
 # Number of processors to use for building packages and tests:
 num_proc_build=${num_proc_build:-8}
 # Default number of processors and processors per node for running tests:
 num_proc_run=${num_proc_run:-4}
 num_proc_node=${num_proc_run}
-# Total memory per node:
+# Total memory per node (GB):
 memory_per_node=8
-
-# Optional (default): MPIEXEC (mpirun), MPIEXEC_OPTS (), MPIEXEC_NP (-np)
 
 cuda_home=${CUDA_HOME:-/usr/local/cuda}
 cuda_path=${cuda_home}/bin
-cuda_arch=${cuda_arch:-sm_80}
+# Change for machine
+cuda_arch=sm_80
+
+hip_home=${ROCM_PATH:-/opt/rocm}
+hip_path=${hip_home}/bin
+# Change for machine
+hip_arch=gfx942
