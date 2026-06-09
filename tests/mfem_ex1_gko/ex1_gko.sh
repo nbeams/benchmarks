@@ -78,12 +78,15 @@ function build_and_run_tests()
 }
 
 
-mfem_branch=${mfem_branch:-master}
+mfem_branch=${mfem_branch:-nbeams/fix-gko-ilu}
 
 # Uncomment the next line to enable 64-bit HYPRE_Int:
 # hypre_big_int=1
 
 # CUDA and metis5
-packages=${packages:-metis5 cuda hypre mfem}
+#packages=${packages:-metis5 cuda hypre mfem}
+
+# HIP and metis5
+packages=${packages:-metis5 hip hypre mfem}
 
 test_required_packages=${packages}
