@@ -7,7 +7,7 @@ Starting from the top-level benchmarks directory:
 1. `cd machine-configs`
 
 2. Edit the machine configuration in linux.sh as necessary to match the machine. E.g., check `cuda_arch`/`hip_arch`, `cuda_home`/`hip_home`, etc.
-   Set `num_proc_run` to the number of ranks you want to use per node when running the benchmark and `memory_per_node` (in GB) for the machine.
+   Set `memory_per_node` (in GB) for the machine.
    Also edit `set_mpi_options()` to set the desired mpi executable options and flags for launching job steps on the machine.
 
 3. `cd ../tests/mfem_ex1_gko`

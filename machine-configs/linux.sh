@@ -94,6 +94,21 @@ function setup_gcc()
    NATIVE_CFLAG="-march=native"
 }
 
+function setup_hip()
+{
+   CC=${hip_home}/llvm/bin/clang
+   CXX=${hip_home}/llvm/bin/clang++
+   FC=${hip_home}/llvm/bin/flang
+
+   setup_mpi
+
+   CFLAGS="-O3"
+   setup_bigmem
+   FFLAGS="$CFLAGS"
+   NATIVE_CFLAG="-march=native"
+}
+
+
 function setup_gcc_no_peel()
 {
    CC=gcc
@@ -140,10 +155,10 @@ function set_mpi_options()
    # Final command will be: $MPIEXEC $MPIEXEC_OPTS $MPIEXEC_NP $num_proc_run $MPIEXEC_POST_OPTS $bind_sh
    # Note that the benchmark will not distribute GPUs to ranks; the MPI command needs to do it (benchmark
    # assumes every GPU is device 0 on its rank)
-   MPIEXEC="mpirun"
+   MPIEXEC="flux run"
    MPIEXEC_NP="-n"
    MPIEXEC_OPTS="-N $num_nodes"
-   bind_sh=""
+   bind_sh="--exclusive"
    compose_mpi_run_command
 }
 
@@ -153,12 +168,12 @@ search_file_list LAPACK_LIB \
 
 valid_compilers="gcc hip"
 # Number of processors to use for building packages and tests:
-num_proc_build=${num_proc_build:-8}
-# Default number of processors and processors per node for running tests:
+num_proc_build=${num_proc_build:-2}
+# Default number of processes and processes per node for running tests:
 num_proc_run=${num_proc_run:-4}
 num_proc_node=${num_proc_run}
 # Total memory per node (GB):
-memory_per_node=8
+memory_per_node=512
 
 cuda_home=${CUDA_HOME:-/usr/local/cuda}
 cuda_path=${cuda_home}/bin
