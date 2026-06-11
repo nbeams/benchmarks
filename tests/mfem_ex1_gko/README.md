@@ -9,6 +9,7 @@ Starting from the top-level benchmarks directory:
 2. Edit the machine configuration in linux.sh as necessary to match the machine. E.g., check `cuda_arch`/`hip_arch`, `cuda_home`/`hip_home`, etc.
    Set `memory_per_node` (in GB) for the machine.
    Also edit `set_mpi_options()` to set the desired mpi executable options and flags for launching job steps on the machine.
+   The current `set_mpi_options()` is an example for running on Tuolumne with flux.
 
 3. `cd ../tests/mfem_ex1_gko`
 
@@ -38,6 +39,7 @@ Sample  HIP run:
 'mfem_devs="hip"' 'solver=1' 'assemble=1' max_dofs_proc=16800000 > ex1.data`
 ```
 
+To tell MFEM to use GPU-aware MPI (if available): set env var `MFEM_GPU_AWARE_MPI=1`.
 List of options:
 
 problem=0     : mass operator test
