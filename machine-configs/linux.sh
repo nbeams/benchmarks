@@ -155,11 +155,18 @@ function set_mpi_options()
    # Final command will be: $MPIEXEC $MPIEXEC_OPTS $MPIEXEC_NP $num_proc_run $MPIEXEC_POST_OPTS $bind_sh
    # Note that the benchmark will not distribute GPUs to ranks; the MPI command needs to do it (benchmark
    # assumes every GPU is device 0 on its rank)
+
    # This is an example based on Tuolumne.
    MPIEXEC="flux run"
    MPIEXEC_NP="-n"
    MPIEXEC_OPTS="-N $num_nodes"
    bind_sh="--exclusive"
+
+   # This is an example for Slurm
+   MPIEXEC="srun"
+   MPIEXEC_NP="-n"
+   MPIEXEC_OPTS="-N $num_nodes"
+   bind_sh="--gpus-per-node=$gpus_per_node"
    compose_mpi_run_command
 }
 
@@ -172,8 +179,7 @@ valid_compilers="gcc hip"
 num_proc_build=${num_proc_build:-2}
 # Default number of processes and processes per node for running tests:
 num_proc_run=${num_proc_run:-4}
-# Total memory per node (GB):
-memory_per_node=512
+gpus_per_node=${gpus_per_node:-1}
 
 cuda_home=${CUDA_HOME:-/usr/local/cuda}
 cuda_path=${cuda_home}/bin

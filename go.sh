@@ -36,6 +36,7 @@ post_process=""
 profiler=""
 num_proc_build=${num_proc_build:-""}
 num_proc_run=${num_proc_run:-""}
+gpus_per_node=${gpus_per_node:-""}
 num_proc_node=${num_proc_node:-""}
 dry_run="" # empty string = NO
 start_shell=""
@@ -548,6 +549,12 @@ case "$1" in
       [ $# -gt 0 ] || {
       echo "Missing \"list\" in --proc-node \"list\""; $exit_cmd 1; }
       num_proc_node="$1"
+      ;;
+   -g|--gpus-node)
+      shift
+      [ $# -gt 0 ] || {
+      echo "Missing \"list\" in --gpus-node \"list\""; $exit_cmd 1; }
+      gpus_per_node="$1"
       ;;
    -pp|--post-process)
       post_process=on
