@@ -7,9 +7,9 @@ Starting from the top-level benchmarks directory:
 1. `cd machine-configs`
 
 2. Edit the machine configuration in linux.sh as necessary to match the machine. E.g., check `cuda_arch`/`hip_arch`, `cuda_home`/`hip_home`, etc.
-   Set `memory_per_node` (in GB) for the machine.
    Also edit `set_mpi_options()` to set the desired mpi executable options and flags for launching job steps on the machine.
-   The current `set_mpi_options()` is an example for running on Tuolumne with flux.
+   The current `set_mpi_options()` has examples for running on Tuolumne with flux, and generic Slurm.
+   You can set a default value for `gpus_per_node` here.
 
 3. `cd ../tests/mfem_ex1_gko`
 
@@ -27,7 +27,7 @@ Sample  CUDA run:
 
 ```
 # Run diffusion test (problem 1), NUM_RANKS processes, with Ginkgo solver and matrix-free operator
-../../go.sh -c linux -m gcc -r ex1_gko.sh -n NUM_RANKS --proc-node NUM_RANKS_PER_NODE 'problem=1' 'min_p=1' 'max_p=8' \
+../../go.sh -c linux -m gcc -r ex1_gko.sh -n NUM_RANKS --proc-node NUM_RANKS_PER_NODE --gpus-node GPUS_PER_NODE 'problem=1' 'min_p=1' 'max_p=8' \
 'mfem_devs="cuda"' 'solver=1' 'assemble=0' max_dofs_proc=16800000 > ex1.data`
 ```
 
@@ -35,7 +35,7 @@ Sample  HIP run:
 
 ```
 # Run diffusion test (problem 1), NUM_RANKS processes, with Ginkgo solver and fully-assembled matrix operator
-../../go.sh -c linux -m hip -r ex1_gko.sh -n NUM_RANKS --proc-node NUM_RANKS_PER_NODE 'problem=1' 'min_p=1' 'max_p=8' \
+../../go.sh -c linux -m hip -r ex1_gko.sh -n NUM_RANKS --proc-node NUM_RANKS_PER_NODE --gpus-node GPUS_PER_NODE 'problem=1' 'min_p=1' 'max_p=8' \
 'mfem_devs="hip"' 'solver=1' 'assemble=1' max_dofs_proc=16800000 > ex1.data`
 ```
 
