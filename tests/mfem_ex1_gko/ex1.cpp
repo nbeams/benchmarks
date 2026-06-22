@@ -45,6 +45,7 @@ int main(int argc, char *argv[])
    const char *device_config = "cpu";
    int solver = 1;
    int assemble = 1;
+   int precond = 0;
 
    OptionsParser args(argc, argv);
    args.AddOption(&dim, "-dim", "--mesh-dimension",
@@ -58,6 +59,7 @@ int main(int argc, char *argv[])
                   "Device configuration string, see Device::Configure().");
    args.AddOption(&solver, "-s", "--solver", "Solver 0:MFEM, 1:Ginkgo.");
    args.AddOption(&assemble, "-a", "--assemble", "Assemble 0:Matrix-free (PA), 1:Full (HypreMat).");
+   args.AddOption(&precond, "-c", "--preconditioner", "Preconditioner 0:None, 1:Schwarz+Ic. Only used with Ginkgo solver");
    args.Parse();
    if (!args.Good())
    {
@@ -223,16 +225,26 @@ int main(int argc, char *argv[])
    else
    {
        Ginkgo::GinkgoExecutor exec(device);
-       Ginkgo::CGSolver cg(exec, MPI_COMM_WORLD);
-       cg.SetRelTol(1e-12);
-       cg.SetMaxIter(max_cg_iter);
-       cg.SetPrintLevel(cg_print_level);
+       Ginkgo::CGSolver *cg;
+       if ((precond == 1) && (assemble == 1))
+       {
+          Ginkgo::IcPreconditioner local_solver(exec, "exact");
+          Ginkgo::SchwarzPreconditioner gko_M(exec, MPI_COMM_WORLD, local_solver);
+          cg = new Ginkgo::CGSolver(exec, MPI_COMM_WORLD, gko_M);
+       }
+       else
+       {
+          cg = new Ginkgo::CGSolver(exec, MPI_COMM_WORLD);
+       }
+       cg->SetRelTol(1e-12);
+       cg->SetMaxIter(max_cg_iter);
+       cg->SetPrintLevel(cg_print_level);
 
        // For Ginkgo, check the time to set the operator (relevant for fully-assembled matrices)
        MPI_Barrier(pmesh->GetComm());
        tic_toc.Clear();
        tic_toc.Start();
-       cg.SetOperator(*A);
+       cg->SetOperator(*A);
        tic_toc.Stop();
        double my_set_op_time = tic_toc.RealTime();
        double set_op_min, set_op_max;
@@ -248,11 +260,11 @@ int main(int argc, char *argv[])
        // Warm-up CG solve (in case of JIT to avoid timing it)
        {
           Vector Xtmp(X);
-          cg.SetMaxIter(2);
-          cg.SetPrintLevel(-1);
-          cg.Mult(B, Xtmp);
-          cg.SetMaxIter(max_cg_iter);
-          cg.SetPrintLevel(cg_print_level);
+          cg->SetMaxIter(2);
+          cg->SetPrintLevel(-1);
+          cg->Mult(B, Xtmp);
+          cg->SetMaxIter(max_cg_iter);
+          cg->SetPrintLevel(cg_print_level);
        }
        
        // Sync all ranks
@@ -263,9 +275,9 @@ int main(int argc, char *argv[])
        
        // Start & Stop CG timing.
        tic_toc.Start();
-       cg.Mult(B, X);
+       cg->Mult(B, X);
        tic_toc.Stop();
-       cg_iter = cg.GetNumIterations();
+       cg_iter = cg->GetNumIterations();
    }
    double rt_min, rt_max, my_rt;
    my_rt = tic_toc.RealTime();

@@ -44,12 +44,14 @@ function run_tests()
    local l_solver=(${solver:-1})
    # 'assemble' can be set on the command line
    local l_assemble=(${assemble:-1})
+   # 'precond' can be set on the command line
+   local l_precond=(${precond:-0})
    local dim=3
    local args=
    for dev in ${l_mfem_devs[@]}; do
       for ((p = l_min_p; p <= l_max_p; p++)) do
          for ((l = 0; (p**dim)*(2**l) <= l_max_dofs_proc; l++)) do
-            args=(-p $problem -o $p -l $l -d $dev -s $l_solver -a $l_assemble)
+            args=(-p $problem -o $p -l $l -d $dev -s $l_solver -a $l_assemble -c $l_precond)
             if [ -z "$dry_run" ]; then
                echo "Running test:"
                quoted_echo $mpi_run ./$test_name "${args[@]}"
