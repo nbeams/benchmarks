@@ -228,7 +228,7 @@ int main(int argc, char *argv[])
        Ginkgo::CGSolver *cg;
        if ((precond == 1) && (assemble == 1))
        {
-          Ginkgo::IcPreconditioner local_solver(exec, "exact");
+          Ginkgo::IcIsaiPreconditioner local_solver(exec, "exact");
           Ginkgo::SchwarzPreconditioner gko_M(exec, MPI_COMM_WORLD, local_solver);
           cg = new Ginkgo::CGSolver(exec, MPI_COMM_WORLD, gko_M);
        }
